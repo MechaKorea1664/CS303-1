@@ -2,21 +2,25 @@
 #include <array>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 void fillArrayFromFile(int intArr[], int arrLength) {
   ifstream inFS;
-  int newNum, iterator = 0;
-  string filename;
+  int iterator = 0;
+  string filename, contents, newNum;
   cout << "Target file name >>> ";
   cin >> filename;
 
   inFS.open(filename);
   while (inFS.is_open() && !inFS.eof() && iterator < arrLength) {
-    inFS >> newNum;
-    intArr[iterator] = newNum;
-    iterator++;
-    newNum = 0;
+      getline(inFS, contents);
+      istringstream inSS(contents);
+      for (int i = 0; i < 10; i++) {
+          inSS >> newNum;
+          intArr[iterator] = stoi(newNum);
+          iterator++;
+      }
   }
   inFS.close();
   for (; iterator < arrLength; iterator++) {
@@ -59,15 +63,18 @@ void changeValueAtIntArrIndex(int intArr[], int arrLength) {
 void addNewIntAtEndOfIntArray(int intArr[], int arrLength) {
   int newVal;
   try {
-    for (int i = 0; i < arrLength; i++) {
-      if (intArr[i] == 0) {
+    for (int i = arrLength - 1; i >= 0; i--) {
+        if (intArr[i] != 0 && i == arrLength - 1) {
+            throw invalid_argument("Array is full.");
+        }
+      else if (intArr[i] != 0) {
         cout << "New value? >>> ";
         cin >> newVal;
-        intArr[i] = newVal;
+        intArr[i+1] = newVal;
         return;
       }
     }
-    throw invalid_argument("Array is full.");
+    throw invalid_argument("Unexpected Error.");
   } catch (invalid_argument x) {
     cout << x.what() << endl;
   }
@@ -124,13 +131,16 @@ void displayMenu() {
 void printArray(int intArr[], int arrLength) {
   cout << "{" << intArr[0];
   for (int i = 1; i < arrLength; i++) {
-    cout << ", " << intArr[i];
+      cout << ", ";
+      if (i % 10 == 0) 
+          cout << endl << " ";
+    cout << intArr[i];
   }
   cout << "}" << endl;
 }
 
 void mainLoop() {
-  int arrLength = 50;
+  int arrLength = 105;
   int *intArr = new int[arrLength];
   fillArrayFromFile(intArr, arrLength);
 
